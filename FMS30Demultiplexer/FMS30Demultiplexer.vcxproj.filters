@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="头文件\commom">
+      <UniqueIdentifier>{019458c5-cba7-4616-9e5c-01011942cf86}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FMS30Demultiplexer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FMS30InputPin.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FMS30OutputPin.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="PacketAllocator.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="PacketQueue.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="StreamParser.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\includes\LAVSplitterSettings.h">
+      <Filter>头文件\commom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\includes\LAVSplitterSettingsInternal.h">
+      <Filter>头文件\commom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\includes\common_defines.h">
+      <Filter>头文件\commom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\includes\IBitRateInfo.h">
+      <Filter>头文件\commom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\includes\IBufferInfo.h">
+      <Filter>头文件\commom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\includes\IDSMResourceBag.h">
+      <Filter>头文件\commom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\includes\IGraphRebuildDelegate.h">
+      <Filter>头文件\commom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\includes\IKeyFrameInfo.h">
+      <Filter>头文件\commom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\includes\ILAVDynamicAllocator.h">
+      <Filter>头文件\commom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\includes\ILAVPinInfo.h">
+      <Filter>头文件\commom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\includes\IMediaSample3D.h">
+      <Filter>头文件\commom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\includes\IMediaSideData.h">
+      <Filter>头文件\commom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\includes\IMediaSideDataFFmpeg.h">
+      <Filter>头文件\commom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\includes\IPinSegmentEx.h">
+      <Filter>头文件\commom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\includes\ISpecifyPropertyPages2.h">
+      <Filter>头文件\commom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\includes\IStreamSourceControl.h">
+      <Filter>头文件\commom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\includes\ITrackInfo.h">
+      <Filter>头文件\commom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\includes\moreuuids.h">
+      <Filter>头文件\commom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\includes\SubRenderIntf.h">
+      <Filter>头文件\commom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\includes\version.h">
+      <Filter>头文件\commom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\includes\version_rev.h">
+      <Filter>头文件\commom</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FMS30Demultiplexer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FMS30InputPin.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FMS30OutputPin.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="PacketAllocator.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="PacketQueue.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="StreamParser.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
