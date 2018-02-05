@@ -28,6 +28,9 @@ public:
 	DECLARE_IUNKNOWN;
 	STDMETHODIMP NonDelegatingQueryInterface(REFIID riid, void** ppv);
 
+	// IQualityControl
+	STDMETHODIMP Notify(IBaseFilter* pSender, Quality q) { return E_NOTIMPL; }
+
 	// CBaseOutputPin
 	HRESULT DecideAllocator(IMemInputPin * pPin, IMemAllocator ** pAlloc);
 	HRESULT DecideBufferSize(IMemAllocator* pAlloc, ALLOCATOR_PROPERTIES* pProperties);
