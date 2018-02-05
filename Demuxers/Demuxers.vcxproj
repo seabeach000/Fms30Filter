@@ -132,6 +132,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseDemuxer.h" />
+    <ClInclude Include="ExtradataParser.h" />
     <ClInclude Include="FmsDemuxer.h" />
     <ClInclude Include="LAVFAudioHelper.h" />
     <ClInclude Include="LAVFStreamInfo.h" />
@@ -144,6 +145,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseDemuxer.cpp" />
+    <ClCompile Include="ExtradataParser.cpp" />
     <ClCompile Include="FmsDemuxer.cpp" />
     <ClCompile Include="LAVFAudioHelper.cpp" />
     <ClCompile Include="LAVFStreamInfo.cpp" />

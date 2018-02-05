@@ -17,7 +17,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demuxers", "Demuxers\Demuxe
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FMS30Demultiplexer", "FMS30Demultiplexer\FMS30Demultiplexer.vcxproj", "{C84CB73F-0DB6-41AE-8618-221E1980824E}"
 	ProjectSection(ProjectDependencies) = postProject
-		{0A058024-41F4-4509-97D2-803A1806CE86} = {0A058024-41F4-4509-97D2-803A1806CE86}
+		{D2D2FA0F-61FD-44ED-A1D0-4B8F1BAC4543} = {D2D2FA0F-61FD-44ED-A1D0-4B8F1BAC4543}
 	EndProjectSection
 EndProject
 Global

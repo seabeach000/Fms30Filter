@@ -4,7 +4,6 @@
 #include "stdafx.h"
 #include "LAVSplitterSettingsInternal.h"
 
-#include "streams.h"
 #include "DShowUtil.h"
 
 class MyClass:public ILAVFSettingsInternal

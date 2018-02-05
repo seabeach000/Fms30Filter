@@ -7,9 +7,6 @@
 
 #include "targetver.h"
 
-// Support for Version 6.0 styles
-#pragma comment(linker,"\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
-
 #define WIN32_LEAN_AND_MEAN             // 从 Windows 头中排除极少使用的资料
 // Windows 头文件: 
 #include <windows.h>
@@ -30,3 +27,4 @@ extern "C" {
 
 #include "streams.h"
 #include "DShowUtil.h"
+#include <initguid.h>

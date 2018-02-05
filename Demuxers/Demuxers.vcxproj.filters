@@ -48,6 +48,9 @@
     <ClInclude Include="LAVFVideoHelper.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="ExtradataParser.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -75,6 +78,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="LAVFVideoHelper.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ExtradataParser.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
