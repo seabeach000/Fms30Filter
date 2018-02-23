@@ -1,0 +1,159 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="头文件\decoders">
+      <UniqueIdentifier>{4d4ea4b0-6535-4c15-a226-8a02dfb80f47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\decoders">
+      <UniqueIdentifier>{07685540-3f1c-42ac-b14d-661eb4fffe2c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\parsers">
+      <UniqueIdentifier>{b0648ab6-93c4-4b63-aa83-980cf3ddf533}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\parsers">
+      <UniqueIdentifier>{e3f7cf6b-0e8b-4768-b302-c4cf60a9174b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\pixconv">
+      <UniqueIdentifier>{17a81098-8d4b-4e87-9b7e-f48869c34037}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FMS30Video.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="LAVPixFmtConverter.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DecodeManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="decoders\avcodec.h">
+      <Filter>头文件\decoders</Filter>
+    </ClInclude>
+    <ClInclude Include="VideoInputPin.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="VideoOutputPin.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="LAVVideoSettings.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="parsers\AnnexBConverter.h">
+      <Filter>头文件\parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="parsers\H264SequenceParser.h">
+      <Filter>头文件\parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="parsers\HEVCSequenceParser.h">
+      <Filter>头文件\parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="parsers\MPEG2HeaderParser.h">
+      <Filter>头文件\parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="Media.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="pixconv\pixconv_internal.h">
+      <Filter>源文件\pixconv</Filter>
+    </ClInclude>
+    <ClInclude Include="pixconv\pixconv_sse2_templates.h">
+      <Filter>源文件\pixconv</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FMS30Video.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="LAVPixFmtConverter.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DecodeManager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Filtering.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="decoders\avcodec.cpp">
+      <Filter>源文件\decoders</Filter>
+    </ClCompile>
+    <ClCompile Include="VideoInputPin.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="VideoOutputPin.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="parsers\AnnexBConverter.cpp">
+      <Filter>源文件\parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="parsers\H264SequenceParser.cpp">
+      <Filter>源文件\parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="parsers\HEVCSequenceParser.cpp">
+      <Filter>源文件\parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="parsers\MPEG2HeaderParser.cpp">
+      <Filter>源文件\parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="Media.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="decoders\pixfmt.cpp">
+      <Filter>源文件\decoders</Filter>
+    </ClCompile>
+    <ClCompile Include="pixconv\convert_direct.cpp">
+      <Filter>源文件\pixconv</Filter>
+    </ClCompile>
+    <ClCompile Include="pixconv\convert_generic.cpp">
+      <Filter>源文件\pixconv</Filter>
+    </ClCompile>
+    <ClCompile Include="pixconv\interleave.cpp">
+      <Filter>源文件\pixconv</Filter>
+    </ClCompile>
+    <ClCompile Include="pixconv\pixconv.cpp">
+      <Filter>源文件\pixconv</Filter>
+    </ClCompile>
+    <ClCompile Include="pixconv\rgb2rgb_unscaled.cpp">
+      <Filter>源文件\pixconv</Filter>
+    </ClCompile>
+    <ClCompile Include="pixconv\yuv2rgb.cpp">
+      <Filter>源文件\pixconv</Filter>
+    </ClCompile>
+    <ClCompile Include="pixconv\yuv2yuv_unscaled.cpp">
+      <Filter>源文件\pixconv</Filter>
+    </ClCompile>
+    <ClCompile Include="pixconv\yuv420_yuy2.cpp">
+      <Filter>源文件\pixconv</Filter>
+    </ClCompile>
+    <ClCompile Include="pixconv\yuv444_ayuv.cpp">
+      <Filter>源文件\pixconv</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

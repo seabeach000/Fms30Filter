@@ -1,5 +1,5 @@
 // stdafx.cpp : 只包括标准包含文件的源文件
-// Fms30Filter.pch 将作为预编译头
+// FMS30Video.pch 将作为预编译头
 // stdafx.obj 将包含预编译类型信息
 
 #include "stdafx.h"

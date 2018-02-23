@@ -27,6 +27,8 @@ CFMS30Splitter::CFMS30Splitter(LPUNKNOWN pUnk, HRESULT* phr)
 {
 	CFmsDemuxer::ffmpeg_init(true);
 
+	LoadSettings();
+
 	m_pInput = new CFMS30InputPin(NAME("FMS Input Pin"), this, this, phr);
 
 	m_ePlaybackInit.Set();

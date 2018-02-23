@@ -1,0 +1,10 @@
+; FMS30Video.def ; declares the exports
+
+LIBRARY         "FMS30Video.ax"
+
+EXPORTS
+                DllGetClassObject PRIVATE
+                DllCanUnloadNow PRIVATE
+                DllRegisterServer PRIVATE
+                DllUnregisterServer PRIVATE
+                OpenConfiguration PRIVATE

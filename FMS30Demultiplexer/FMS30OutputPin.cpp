@@ -447,6 +447,9 @@ HRESULT CFMS30OutputPin::DeliverPacket(Packet *pPacket)
 
 	CHECK_HR(hr == GetDeliveryBuffer(&pSample, nullptr, nullptr, 0));
 
+	if (pSample == nullptr)
+		goto done;
+
 	if (m_bPacketAllocator)
 	{
 		ILAVMediaSample *pLAVSample = nullptr;

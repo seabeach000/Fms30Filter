@@ -19,9 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{01339DCE-280A-4680-98DB-D40907DD729D}</ProjectGuid>
+    <ProjectGuid>{17776A1E-4DC3-4EE5-9D71-953707A27E41}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Fms30Filter</RootNamespace>
+    <RootNamespace>FMS30Video</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -75,6 +75,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin_$(PlatformName)d\</OutDir>
+    <IntDir>$(SolutionDir)bin_$(PlatformName)d\$(ProjectName)\</IntDir>
     <TargetExt>.ax</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -88,7 +89,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;FMS30FILTER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;FMS30VIDEO_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -101,15 +102,16 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;FMS30FILTER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;FMS30VIDEO_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>../common/baseclasses;../common/includes;../ffmpeg/include;../common/DSUtilLite;../Demuxers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);../common/includes;../ffmpeg/include;../common/DSUtilLite;../Demuxers;../common/baseclasses</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>advapi32.lib;ole32.lib;winmm.lib;user32.lib;oleaut32.lib;Comctl32.lib;shell32.lib;version.lib;Shlwapi.lib;strmbasd.lib;demuxersd.lib;dsutild.lib;avformat.lib;avutil.lib;avcodec.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)bin_$(PlatformName)d\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>advapi32.lib;ole32.lib;winmm.lib;user32.lib;oleaut32.lib;Comctl32.lib;shell32.lib;version.lib;Shlwapi.lib;strmbasd.lib;demuxersd.lib;dsutild.lib;avformat.lib;avutil.lib;avcodec.lib;swscale.lib;avfilter.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>FMS30Video.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -119,7 +121,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;FMS30FILTER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;FMS30VIDEO_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -136,7 +138,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;FMS30FILTER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;FMS30VIDEO_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -150,10 +152,27 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DecodeManager.h" />
+    <ClInclude Include="decoders\avcodec.h" />
+    <ClInclude Include="FMS30Video.h" />
+    <ClInclude Include="LAVPixFmtConverter.h" />
+    <ClInclude Include="LAVVideoSettings.h" />
+    <ClInclude Include="Media.h" />
+    <ClInclude Include="parsers\AnnexBConverter.h" />
+    <ClInclude Include="parsers\H264SequenceParser.h" />
+    <ClInclude Include="parsers\HEVCSequenceParser.h" />
+    <ClInclude Include="parsers\MPEG2HeaderParser.h" />
+    <ClInclude Include="pixconv\pixconv_internal.h" />
+    <ClInclude Include="pixconv\pixconv_sse2_templates.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="VideoInputPin.h" />
+    <ClInclude Include="VideoOutputPin.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DecodeManager.cpp" />
+    <ClCompile Include="decoders\avcodec.cpp" />
+    <ClCompile Include="decoders\pixfmt.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -168,13 +187,31 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Fms30Filter.cpp" />
+    <ClCompile Include="Filtering.cpp" />
+    <ClCompile Include="FMS30Video.cpp" />
+    <ClCompile Include="LAVPixFmtConverter.cpp" />
+    <ClCompile Include="Media.cpp" />
+    <ClCompile Include="parsers\AnnexBConverter.cpp" />
+    <ClCompile Include="parsers\H264SequenceParser.cpp" />
+    <ClCompile Include="parsers\HEVCSequenceParser.cpp" />
+    <ClCompile Include="parsers\MPEG2HeaderParser.cpp" />
+    <ClCompile Include="pixconv\convert_direct.cpp" />
+    <ClCompile Include="pixconv\convert_generic.cpp" />
+    <ClCompile Include="pixconv\interleave.cpp" />
+    <ClCompile Include="pixconv\pixconv.cpp" />
+    <ClCompile Include="pixconv\rgb2rgb_unscaled.cpp" />
+    <ClCompile Include="pixconv\yuv2rgb.cpp" />
+    <ClCompile Include="pixconv\yuv2yuv_unscaled.cpp" />
+    <ClCompile Include="pixconv\yuv420_yuy2.cpp" />
+    <ClCompile Include="pixconv\yuv444_ayuv.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="VideoInputPin.cpp" />
+    <ClCompile Include="VideoOutputPin.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
