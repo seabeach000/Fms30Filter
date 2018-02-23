@@ -17,7 +17,7 @@ extern "C" {
 #include "libavutil/mastering_display_metadata.h"
 };
 
-class __declspec(uuid("94FDB89F-B604-48C2-B785-105B7F781F76")) CFMS30Video :public CTransformFilter , public ISpecifyPropertyPages2,public ILAVVideoCallback,public ILAVVideoSettings
+class __declspec(uuid("94FDB89F-B604-48C2-B785-105B7F781F76")) CFMS30Video :public CTransformFilter ,public ILAVVideoCallback,public ILAVVideoSettings
 {
 public:
 	CFMS30Video(LPUNKNOWN pUnk, HRESULT* phr);
