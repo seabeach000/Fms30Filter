@@ -23,7 +23,7 @@
 
 CVideoInputPin::CVideoInputPin(TCHAR* pObjectName, CFMS30Video* pFilter, HRESULT* phr, LPWSTR pName)
   : CDeCSSTransformInputPin(pObjectName, pFilter, phr, pName)
-  , m_pLAVVideo(pFilter)
+  , m_pFMSVideo(pFilter)
 {
 }
 
@@ -54,10 +54,10 @@ STDMETHODIMP CVideoInputPin::NotifyAllocator(IMemAllocator * pAllocator, BOOL bR
 
 STDMETHODIMP CVideoInputPin::EndOfSegment()
 {
-  CAutoLock lck(&m_pLAVVideo->m_csReceive);
+  CAutoLock lck(&m_pFMSVideo->m_csReceive);
   HRESULT hr = CheckStreaming();
   if (S_OK == hr) {
-    hr = m_pLAVVideo->EndOfSegment();
+    hr = m_pFMSVideo->EndOfSegment();
   }
 
   return hr;

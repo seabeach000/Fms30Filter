@@ -57,9 +57,6 @@
     <ClInclude Include="VideoOutputPin.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="LAVVideoSettings.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="parsers\AnnexBConverter.h">
       <Filter>头文件\parsers</Filter>
     </ClInclude>
@@ -80,6 +77,9 @@
     </ClInclude>
     <ClInclude Include="pixconv\pixconv_sse2_templates.h">
       <Filter>源文件\pixconv</Filter>
+    </ClInclude>
+    <ClInclude Include="VideoSettings.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

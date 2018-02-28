@@ -242,7 +242,7 @@ interface __declspec(uuid("FA40D6E9-4D38-4761-ADD2-71A9EC5FD32F")) ILAVVideoSett
 };
 
 // LAV Video status interface
-interface __declspec(uuid("1CC2385F-36FA-41B1-9942-5024CE0235DC")) ILAVVideoStatus : public IUnknown
+ interface __declspec(uuid("1CC2385F-36FA-41B1-9942-5024CE0235DC")) ILAVVideoStatus : public IUnknown
 {
   // Get the name of the active decoder (can return NULL if none is active)
   STDMETHOD_(LPCWSTR, GetActiveDecoderName)() = 0;

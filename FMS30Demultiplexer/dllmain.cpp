@@ -81,14 +81,7 @@ CFactoryTemplate g_Templates[] = {
 		CreateInstance<CFMS30SplitterSource>,
 		nullptr,
 		&sudFilterRegSource
-	},
-	// This entry is for the property page.
-	//{
-	//	L"LAV Splitter Properties",
-	//	&CLSID_LAVSplitterSettingsProp,
-	//	CreateInstance<CLAVSplitterSettingsProp>,
-	//	nullptr, nullptr
-	//}
+	}
 };
 
 int g_cTemplates = sizeof(g_Templates) / sizeof(g_Templates[0]);

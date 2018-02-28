@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "../LAVVideoSettings.h"
+#include "../VideoSettings.h"
 #include "ILAVPinInfo.h"
 
 /**

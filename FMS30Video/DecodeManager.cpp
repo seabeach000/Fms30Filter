@@ -25,7 +25,7 @@
 
 
 CDecodeManager::CDecodeManager(CFMS30Video *pLAVVideo)
-  : m_pLAVVideo(pLAVVideo)
+  : m_pFMSVideo(pLAVVideo)
 {
   WCHAR fileName[1024];
   GetModuleFileName(nullptr, fileName, 1024);
@@ -46,17 +46,17 @@ STDMETHODIMP CDecodeManager::Close()
 }
 
 #define HWFORMAT_ENABLED \
-   ((codec == AV_CODEC_ID_H264 && m_pLAVVideo->GetHWAccelCodec(HWCodec_H264))                                                       \
-|| ((codec == AV_CODEC_ID_VC1 || codec == AV_CODEC_ID_WMV3) && m_pLAVVideo->GetHWAccelCodec(HWCodec_VC1))                           \
-|| ((codec == AV_CODEC_ID_MPEG2VIDEO || codec == AV_CODEC_ID_MPEG1VIDEO) && m_pLAVVideo->GetHWAccelCodec(HWCodec_MPEG2) && (!(m_pLAVVideo->GetDecodeFlags() & LAV_VIDEO_DEC_FLAG_DVD) || m_pLAVVideo->GetHWAccelCodec(HWCodec_MPEG2DVD)))            \
-|| (codec == AV_CODEC_ID_MPEG4 && m_pLAVVideo->GetHWAccelCodec(HWCodec_MPEG4)) \
-|| (codec == AV_CODEC_ID_HEVC && m_pLAVVideo->GetHWAccelCodec(HWCodec_HEVC)) \
-|| (codec == AV_CODEC_ID_VP9 && m_pLAVVideo->GetHWAccelCodec(HWCodec_VP9)))
+   ((codec == AV_CODEC_ID_H264 && m_pFMSVideo->GetHWAccelCodec(HWCodec_H264))                                                       \
+|| ((codec == AV_CODEC_ID_VC1 || codec == AV_CODEC_ID_WMV3) && m_pFMSVideo->GetHWAccelCodec(HWCodec_VC1))                           \
+|| ((codec == AV_CODEC_ID_MPEG2VIDEO || codec == AV_CODEC_ID_MPEG1VIDEO) && m_pFMSVideo->GetHWAccelCodec(HWCodec_MPEG2) && (!(m_pFMSVideo->GetDecodeFlags() & LAV_VIDEO_DEC_FLAG_DVD) || m_pFMSVideo->GetHWAccelCodec(HWCodec_MPEG2DVD)))            \
+|| (codec == AV_CODEC_ID_MPEG4 && m_pFMSVideo->GetHWAccelCodec(HWCodec_MPEG4)) \
+|| (codec == AV_CODEC_ID_HEVC && m_pFMSVideo->GetHWAccelCodec(HWCodec_HEVC)) \
+|| (codec == AV_CODEC_ID_VP9 && m_pFMSVideo->GetHWAccelCodec(HWCodec_VP9)))
 
 #define HWRESOLUTION_ENABLED \
-  ((pBMI->biHeight <= 576 && pBMI->biWidth <= 1024 && m_pLAVVideo->GetHWAccelResolutionFlags() & LAVHWResFlag_SD)     \
-|| ((pBMI->biHeight > 576 || pBMI->biWidth > 1024) && pBMI->biHeight <= 1200 && pBMI->biWidth <= 1920 && m_pLAVVideo->GetHWAccelResolutionFlags() & LAVHWResFlag_HD)    \
-|| ((pBMI->biHeight > 1200 || pBMI->biWidth > 1920) && m_pLAVVideo->GetHWAccelResolutionFlags() & LAVHWResFlag_UHD))
+  ((pBMI->biHeight <= 576 && pBMI->biWidth <= 1024 && m_pFMSVideo->GetHWAccelResolutionFlags() & LAVHWResFlag_SD)     \
+|| ((pBMI->biHeight > 576 || pBMI->biWidth > 1024) && pBMI->biHeight <= 1200 && pBMI->biWidth <= 1920 && m_pFMSVideo->GetHWAccelResolutionFlags() & LAVHWResFlag_HD)    \
+|| ((pBMI->biHeight > 1200 || pBMI->biWidth > 1920) && m_pFMSVideo->GetHWAccelResolutionFlags() & LAVHWResFlag_UHD))
 
 STDMETHODIMP CDecodeManager::CreateDecoder(const CMediaType *pmt, AVCodecID codec)
 {
@@ -81,7 +81,7 @@ STDMETHODIMP CDecodeManager::CreateDecoder(const CMediaType *pmt, AVCodecID code
   }
   DbgLog((LOG_TRACE, 10, L"-> Created Codec '%s'", m_pDecoder->GetDecoderName()));
 
-  hr = m_pDecoder->InitInterfaces(static_cast<ILAVVideoSettings *>(m_pLAVVideo), static_cast<ILAVVideoCallback *>(m_pLAVVideo));
+  hr = m_pDecoder->InitInterfaces(static_cast<ILAVVideoSettings *>(m_pFMSVideo), static_cast<ILAVVideoCallback *>(m_pFMSVideo));
   if (FAILED(hr)) {
     DbgLog((LOG_TRACE, 10, L"-> Init Interfaces failed (hr: 0x%x)", hr));
     goto done;
@@ -122,14 +122,14 @@ STDMETHODIMP CDecodeManager::Decode(IMediaSample *pSample)
 
     // If we're disabling DXVA2 Native decoding, we need to release resources now
     if (wcscmp(m_pDecoder->GetDecoderName(), L"dxva2n") == 0 || wcscmp(m_pDecoder->GetDecoderName(), L"d3d11 native") == 0) {
-      m_pLAVVideo->ReleaseAllDXVAResources();
-      m_pLAVVideo->GetOutputPin()->GetConnected()->BeginFlush();
-      m_pLAVVideo->GetOutputPin()->GetConnected()->EndFlush();
+      m_pFMSVideo->ReleaseAllDXVAResources();
+      m_pFMSVideo->GetOutputPin()->GetConnected()->BeginFlush();
+      m_pFMSVideo->GetOutputPin()->GetConnected()->EndFlush();
 
       // TODO: further decoding still fails when DXVA2-Native fails mid-decoding, since we can't inform the renderer about no longer delivering DXVA surfaces
     }
 
-    CMediaType &mt = m_pLAVVideo->GetInputMediaType();
+    CMediaType &mt = m_pFMSVideo->GetInputMediaType();
     hr = CreateDecoder(&mt, m_Codec);
 
     if (SUCCEEDED(hr)) {
@@ -178,7 +178,7 @@ STDMETHODIMP CDecodeManager::PostConnect(IPin *pPin)
     hr = m_pDecoder->PostConnect(pPin);
     if (FAILED(hr)) {
       m_bHWDecoderFailed = TRUE;
-      CMediaType &mt = m_pLAVVideo->GetInputMediaType();
+      CMediaType &mt = m_pFMSVideo->GetInputMediaType();
       hr = CreateDecoder(&mt, m_Codec);
     }
   }

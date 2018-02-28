@@ -60,7 +60,7 @@ public:
   STDMETHODIMP SetDirectOutput(BOOL bDirect) { return m_pDecoder ? m_pDecoder->SetDirectOutput(bDirect) : S_FALSE; }
 
 private:
-  CFMS30Video    *m_pLAVVideo = nullptr;
+  CFMS30Video    *m_pFMSVideo = nullptr;
   ILAVDecoder  *m_pDecoder  = nullptr;
 
   AVCodecID    m_Codec      = AV_CODEC_ID_NONE;

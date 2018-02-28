@@ -1078,19 +1078,6 @@ send_packet:
       }
     }
 
-   // AVFrameSideData * sdHDRContentLightLevel = av_frame_get_side_data(m_pFrame, AV_FRAME_DATA_CONTENT_LIGHT_LEVEL);
-    //if (sdHDRContentLightLevel) {
-    //  if (sdHDRContentLightLevel->size == sizeof(AVContentLightMetadata)) {
-    //    AVContentLightMetadata *metadata = (AVContentLightMetadata *)sdHDRContentLightLevel->data;
-    //    MediaSideDataHDRContentLightLevel * hdr = (MediaSideDataHDRContentLightLevel *)AddLAVFrameSideData(pOutFrame, IID_MediaSideDataHDRContentLightLevel, sizeof(MediaSideDataHDRContentLightLevel));
-    //    hdr->MaxCLL = metadata->MaxCLL;
-    //    hdr->MaxFALL = metadata->MaxFALL;
-    //  }
-    //  else {
-    //    DbgLog((LOG_TRACE, 10, L"::Decode(): Found HDR Light Level data of an unexpected size (%d)", sdHDRContentLightLevel->size));
-    //  }
-    //}
-
     if (map.conversion) {
       ConvertPixFmt(m_pFrame, pOutFrame);
     } else {
@@ -1131,9 +1118,10 @@ send_packet:
 
     if (bEndOfSequence) {
       bEndOfSequence = FALSE;
-      if (pOutFrame->format == LAVPixFmt_DXVA2 || pOutFrame->format == LAVPixFmt_D3D11) {
-        HandleDXVA2Frame(m_pCallback->GetFlushFrame());
-      } else {
+	  if (pOutFrame->format == LAVPixFmt_DXVA2 || pOutFrame->format == LAVPixFmt_D3D11) {
+		  HandleDXVA2Frame(m_pCallback->GetFlushFrame());
+	  }
+	  else {
         Deliver(m_pCallback->GetFlushFrame());
       }
     }

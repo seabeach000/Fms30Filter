@@ -4,7 +4,7 @@
 #include "stdafx.h"
 #include "FMS30Video.h"
 #include "Media.h"
-#include "LAVVideoSettings.h"
+#include "VideoSettings.h"
 #include "IMediaSideDataFFmpeg.h"
 
 #include "VideoInputPin.h"
@@ -83,10 +83,7 @@ STDMETHODIMP CFMS30Video::NonDelegatingQueryInterface(REFIID riid, void** ppv)
 	*ppv = nullptr;
 
 	return
-		QI(ISpecifyPropertyPages)
-		QI(IPropertyBag)
 		QI2(ILAVVideoSettings)
-		QI2(ILAVVideoStatus)
 	 __super::NonDelegatingQueryInterface(riid, ppv);
 }
 
@@ -677,6 +674,7 @@ HRESULT CFMS30Video::LoadDefaults()
 
 	m_settings.bPixFmts[LAVOutPixFmt_YV16] = FALSE;
 	m_settings.bPixFmts[LAVOutPixFmt_AYUV] = FALSE;
+	m_settings.bPixFmts[LAVOutPixFmt_RGB32] = TRUE;	
 
 	m_settings.SWDeintMode = SWDeintMode_None;
 	m_settings.SWDeintOutput = DeintOutput_FramePerField;

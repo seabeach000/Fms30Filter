@@ -47,7 +47,7 @@ public:
 
   BOOL HasDynamicAllocator() { return m_bDynamicAllocator; }
 private:
-  CFMS30Video *m_pLAVVideo = nullptr;
+  CFMS30Video *m_pFMSVideo = nullptr;
   CCritSec m_csRateLock;
 
   int m_CorrectTS = 0;
