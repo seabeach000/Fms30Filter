@@ -914,228 +914,164 @@ STDMETHODIMP CDecAvcodec::DecodePacket(AVPacket *avpkt, REFERENCE_TIME rtStartIn
         return S_OK;
       }
     }
-
-    // Add a palette from extradata, if any
-    if (m_bHasPalette)
-    {
-      m_bHasPalette = FALSE;
-      uint32_t *pal = (uint32_t *)av_packet_new_side_data(avpkt, AV_PKT_DATA_PALETTE, AVPALETTE_SIZE);
-      int pal_size = FFMIN((1 << m_pAVCtx->bits_per_coded_sample) << 2, m_pAVCtx->extradata_size);
-      uint8_t *pal_src = m_pAVCtx->extradata + m_pAVCtx->extradata_size - pal_size;
-
-      for (int i = 0; i < pal_size / 4; i++)
-        pal[i] = 0xFF << 24 | AV_RL32(pal_src + 4 * i);
-    }
-  }
-
-send_packet:
-  // send packet to the decoder
-  ret = avcodec_send_packet(m_pAVCtx, avpkt);
-  if (ret < 0) {
-    // Check if post-decoding checks failed
-    if (FAILED(PostDecode())) {
-      return E_FAIL;
-    }
-
-    if (ret == AVERROR(EAGAIN))
-    {
-      if (bDeliverFirst)
-      {
-        DbgLog((LOG_ERROR, 10, L"::Decode(): repeated packet submission to the decoder failed"));
-        ASSERT(0);
-        return E_FAIL;
-      }
-      bDeliverFirst = TRUE;
-    }
-    else
-      return S_FALSE;
   }
   else
   {
-    bDeliverFirst = FALSE;
+	  return S_FALSE;
   }
+  
+  int frame_finished = 0;
+  {
+	  ret = avcodec_decode_video2(m_pAVCtx, m_pFrame, &frame_finished, avpkt);
 
-  // loop over available frames
-  while(1) {
-    ret = avcodec_receive_frame(m_pAVCtx, m_pFrame);
+	  // Decoding of this frame failed ... oh well!
+	  if (frame_finished == 0) {
+		  av_frame_unref(m_pFrame);
+		  return S_FALSE;
+	  }
 
-    if (FAILED(PostDecode())) {
-      av_frame_unref(m_pFrame);
-      return E_FAIL;
-    }
+	  ///////////////////////////////////////////////////////////////////////////////////////////////
+	   // Determine the proper timestamps for the frame, based on different possible flags.
+	   ///////////////////////////////////////////////////////////////////////////////////////////////
+	  if (m_bFFReordering) {
+		  rtStart = m_pFrame->pts;
+		  if (m_pFrame->pkt_duration)
+			  rtStop = m_pFrame->pts + m_pFrame->pkt_duration;
+		  else
+			  rtStop = AV_NOPTS_VALUE;
+	  }
+	  else if (m_bBFrameDelay && m_pAVCtx->has_b_frames) {
+		  rtStart = m_tcBFrameDelay[m_nBFramePos].rtStart;
+		  rtStop = m_tcBFrameDelay[m_nBFramePos].rtStop;
+	  }
+	  else if (m_pAVCtx->active_thread_type & FF_THREAD_FRAME) {
+		  unsigned index = m_CurrentThread;
+		  rtStart = m_tcThreadBuffer[index].rtStart;
+		  rtStop = m_tcThreadBuffer[index].rtStop;
+	  }
 
-    // Decoding of this frame failed ... oh well!
-    if (ret < 0 && ret != AVERROR(EAGAIN)) {
-      av_frame_unref(m_pFrame);
-      return S_FALSE;
-    }
+	  if (m_bRVDropBFrameTimings && m_pFrame->pict_type == AV_PICTURE_TYPE_B) {
+		  rtStart = AV_NOPTS_VALUE;
+	  }
 
-    // Judge frame usability
-    // This determines if a frame is artifact free and can be delivered.
-    if (m_bResumeAtKeyFrame && m_bWaitingForKeyFrame && ret >= 0) {
-      if (m_pFrame->key_frame) {
-        DbgLog((LOG_TRACE, 50, L"::Decode() - Found Key-Frame, resuming decoding at %I64d", m_pFrame->pts));
-        m_bWaitingForKeyFrame = FALSE;
-      }
-      else {
-        ret = AVERROR(EAGAIN);
-      }
-    }
+	  if (m_bCalculateStopTime)
+		  rtStop = AV_NOPTS_VALUE;
 
-    // Handle B-frame delay for frame threading codecs
-    if ((m_pAVCtx->active_thread_type & FF_THREAD_FRAME) && m_bBFrameDelay) {
-      m_tcBFrameDelay[m_nBFramePos] = m_tcThreadBuffer[m_CurrentThread];
-      m_nBFramePos = !m_nBFramePos;
-    }
+	  ///////////////////////////////////////////////////////////////////////////////////////////////
+	  // All required values collected, deliver the frame
+	  ///////////////////////////////////////////////////////////////////////////////////////////////
+	  LAVFrame *pOutFrame = nullptr;
+	  AllocateFrame(&pOutFrame);
 
-    // no frame was decoded, bail out here
-    if (ret < 0 || !m_pFrame->data[0]) {
-      av_frame_unref(m_pFrame);
-      break;
-    }
+	  AVRational display_aspect_ratio;
+	  int64_t num = (int64_t)m_pFrame->sample_aspect_ratio.num * m_pFrame->width;
+	  int64_t den = (int64_t)m_pFrame->sample_aspect_ratio.den * m_pFrame->height;
+	  av_reduce(&display_aspect_ratio.num, &display_aspect_ratio.den, num, den, INT_MAX);
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // Determine the proper timestamps for the frame, based on different possible flags.
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    if (m_bFFReordering) {
-      rtStart = m_pFrame->pts;
-      if (m_pFrame->pkt_duration)
-        rtStop = m_pFrame->pts + m_pFrame->pkt_duration;
-      else
-        rtStop = AV_NOPTS_VALUE;
-    } else if (m_bBFrameDelay && m_pAVCtx->has_b_frames) {
-      rtStart = m_tcBFrameDelay[m_nBFramePos].rtStart;
-      rtStop  = m_tcBFrameDelay[m_nBFramePos].rtStop;
-    } else if (m_pAVCtx->active_thread_type & FF_THREAD_FRAME) {
-      unsigned index = m_CurrentThread;
-      rtStart = m_tcThreadBuffer[index].rtStart;
-      rtStop  = m_tcThreadBuffer[index].rtStop;
-    }
+	  pOutFrame->width = m_pFrame->width;
+	  pOutFrame->height = m_pFrame->height;
+	  pOutFrame->aspect_ratio = display_aspect_ratio;
+	  pOutFrame->repeat = m_pFrame->repeat_pict;
+	  pOutFrame->key_frame = m_pFrame->key_frame;
+	  pOutFrame->frame_type = av_get_picture_type_char(m_pFrame->pict_type);
+	  pOutFrame->ext_format = GetDXVA2ExtendedFlags(m_pAVCtx, m_pFrame);
 
-    if (m_bRVDropBFrameTimings && m_pFrame->pict_type == AV_PICTURE_TYPE_B) {
-      rtStart = AV_NOPTS_VALUE;
-    }
+	  if (m_pFrame->interlaced_frame || (/*!m_pAVCtx->progressive_sequence && */(m_nCodecId == AV_CODEC_ID_H264 || m_nCodecId == AV_CODEC_ID_MPEG2VIDEO)))
+		  m_iInterlaced = 1;
+	  else/* if (m_pAVCtx->progressive_sequence)*/  //wxg20180222需要对照famous处理方法修改
+		  m_iInterlaced = 0;
 
-    if (m_bCalculateStopTime)
-      rtStop = AV_NOPTS_VALUE;
+	  if ((m_nCodecId == AV_CODEC_ID_H264 || m_nCodecId == AV_CODEC_ID_MPEG2VIDEO) && m_pFrame->repeat_pict)
+		  m_nSoftTelecine = 2;
+	  else if (m_nSoftTelecine > 0)
+		  m_nSoftTelecine--;
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // All required values collected, deliver the frame
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    LAVFrame *pOutFrame = nullptr;
-    AllocateFrame(&pOutFrame);
+	  // Don't apply aggressive deinterlacing to content that looks soft-telecined, as it would destroy the content
+	  bool bAggressiveFlag = (m_iInterlaced == 1 && m_pSettings->GetDeinterlacingMode() == DeintMode_Aggressive) && !m_nSoftTelecine;
 
-    AVRational display_aspect_ratio;
-    int64_t num = (int64_t)m_pFrame->sample_aspect_ratio.num * m_pFrame->width;
-    int64_t den = (int64_t)m_pFrame->sample_aspect_ratio.den * m_pFrame->height;
-    av_reduce(&display_aspect_ratio.num, &display_aspect_ratio.den, num, den, INT_MAX);
+	  pOutFrame->interlaced = (m_pFrame->interlaced_frame || bAggressiveFlag || m_pSettings->GetDeinterlacingMode() == DeintMode_Force) && !(m_pSettings->GetDeinterlacingMode() == DeintMode_Disable);
 
-    pOutFrame->width        = m_pFrame->width;
-    pOutFrame->height       = m_pFrame->height;
-    pOutFrame->aspect_ratio = display_aspect_ratio;
-    pOutFrame->repeat       = m_pFrame->repeat_pict;
-    pOutFrame->key_frame    = m_pFrame->key_frame;
-    pOutFrame->frame_type   = av_get_picture_type_char(m_pFrame->pict_type);
-    pOutFrame->ext_format   = GetDXVA2ExtendedFlags(m_pAVCtx, m_pFrame);
+	  LAVDeintFieldOrder fo = DeintFieldOrder_Auto; //wxg暂时只处理tff
+	  pOutFrame->tff = (fo == DeintFieldOrder_Auto) ? m_pFrame->top_field_first : (fo == DeintFieldOrder_TopFieldFirst);
 
-    if (m_pFrame->interlaced_frame || (/*!m_pAVCtx->progressive_sequence && */(m_nCodecId == AV_CODEC_ID_H264 || m_nCodecId == AV_CODEC_ID_MPEG2VIDEO)))
-      m_iInterlaced = 1;
-    else/* if (m_pAVCtx->progressive_sequence)*/  //wxg20180222需要对照famous处理方法修改
-      m_iInterlaced = 0;
+	  pOutFrame->rtStart = rtStart;
+	  pOutFrame->rtStop = rtStop;
 
-    if ((m_nCodecId == AV_CODEC_ID_H264 || m_nCodecId == AV_CODEC_ID_MPEG2VIDEO) && m_pFrame->repeat_pict)
-      m_nSoftTelecine = 2;
-    else if (m_nSoftTelecine > 0)
-      m_nSoftTelecine--;
+	  PixelFormatMapping map = getPixFmtMapping((AVPixelFormat)m_pFrame->format);
+	  pOutFrame->format = map.lavpixfmt;
+	  pOutFrame->bpp = map.bpp;
 
-    // Don't apply aggressive deinterlacing to content that looks soft-telecined, as it would destroy the content
-    bool bAggressiveFlag    = (m_iInterlaced == 1 && m_pSettings->GetDeinterlacingMode() == DeintMode_Aggressive) && !m_nSoftTelecine;
+	  if (m_nCodecId == AV_CODEC_ID_MPEG2VIDEO || m_nCodecId == AV_CODEC_ID_MPEG1VIDEO)
+		  pOutFrame->avgFrameDuration = GetFrameDuration();
 
-    pOutFrame->interlaced   = (m_pFrame->interlaced_frame || bAggressiveFlag || m_pSettings->GetDeinterlacingMode() == DeintMode_Force) && !(m_pSettings->GetDeinterlacingMode() == DeintMode_Disable);
+	  AVFrameSideData * sdHDR = av_frame_get_side_data(m_pFrame, AV_FRAME_DATA_MASTERING_DISPLAY_METADATA);
+	  if (sdHDR) {
+		  if (sdHDR->size == sizeof(AVMasteringDisplayMetadata)) {
+			  AVMasteringDisplayMetadata *metadata = (AVMasteringDisplayMetadata *)sdHDR->data;
+			  MediaSideDataHDR * hdr = (MediaSideDataHDR *)AddLAVFrameSideData(pOutFrame, IID_MediaSideDataHDR, sizeof(MediaSideDataHDR));
+			  processFFHDRData(hdr, metadata);
+		  }
+		  else {
+			  DbgLog((LOG_TRACE, 10, L"::Decode(): Found HDR data of an unexpected size (%d)", sdHDR->size));
+		  }
+	  }
 
-    LAVDeintFieldOrder fo   = DeintFieldOrder_Auto; //wxg暂时只处理tff
-    pOutFrame->tff          = (fo == DeintFieldOrder_Auto) ? m_pFrame->top_field_first : (fo == DeintFieldOrder_TopFieldFirst);
-
-    pOutFrame->rtStart      = rtStart;
-    pOutFrame->rtStop       = rtStop;
-
-    PixelFormatMapping map  = getPixFmtMapping((AVPixelFormat)m_pFrame->format);
-    pOutFrame->format       = map.lavpixfmt;
-    pOutFrame->bpp          = map.bpp;
-
-    if (m_nCodecId == AV_CODEC_ID_MPEG2VIDEO || m_nCodecId == AV_CODEC_ID_MPEG1VIDEO)
-      pOutFrame->avgFrameDuration = GetFrameDuration();
-
-    AVFrameSideData * sdHDR = av_frame_get_side_data(m_pFrame, AV_FRAME_DATA_MASTERING_DISPLAY_METADATA);
-    if (sdHDR) {
-      if (sdHDR->size == sizeof(AVMasteringDisplayMetadata)) {
-        AVMasteringDisplayMetadata *metadata = (AVMasteringDisplayMetadata *)sdHDR->data;
-        MediaSideDataHDR * hdr = (MediaSideDataHDR *)AddLAVFrameSideData(pOutFrame, IID_MediaSideDataHDR, sizeof(MediaSideDataHDR));
-        processFFHDRData(hdr, metadata);
-      }
-      else {
-        DbgLog((LOG_TRACE, 10, L"::Decode(): Found HDR data of an unexpected size (%d)", sdHDR->size));
-      }
-    }
-
-    if (map.conversion) {
-      ConvertPixFmt(m_pFrame, pOutFrame);
-    } else {
-      AVFrame *pFrameRef = av_frame_alloc();
-      av_frame_ref(pFrameRef, m_pFrame);
-
-      for (int i = 0; i < 4; i++) {
-        pOutFrame->data[i]   = pFrameRef->data[i];
-        pOutFrame->stride[i] = pFrameRef->linesize[i];
-      }
-
-      pOutFrame->priv_data = pFrameRef;
-      pOutFrame->destruct = lav_avframe_free;
-
-      // Check alignment on rawvideo, which can be off depending on the source file
-      if (m_nCodecId == AV_CODEC_ID_RAWVIDEO) {
-        for (int i = 0; i < 4; i++) {
-          if ((intptr_t)pOutFrame->data[i] % 16u || pOutFrame->stride[i] % 16u) {
-            // copy the frame, its not aligned properly and would crash later
-            CopyLAVFrameInPlace(pOutFrame);
-            break;
-          }
-        }
-      }
-    }
-
-    if (bEndOfSequence)
-      pOutFrame->flags |= LAV_FRAME_FLAG_END_OF_SEQUENCE;
-
-    if (pOutFrame->format == LAVPixFmt_DXVA2) {
-      pOutFrame->data[0] = m_pFrame->data[4];
-      HandleDXVA2Frame(pOutFrame);
-    } else if (pOutFrame->format == LAVPixFmt_D3D11) {
-      HandleDXVA2Frame(pOutFrame);
-    } else {
-      Deliver(pOutFrame);
-    }
-
-    if (bEndOfSequence) {
-      bEndOfSequence = FALSE;
-	  if (pOutFrame->format == LAVPixFmt_DXVA2 || pOutFrame->format == LAVPixFmt_D3D11) {
-		  HandleDXVA2Frame(m_pCallback->GetFlushFrame());
+	  if (map.conversion) {
+		  ConvertPixFmt(m_pFrame, pOutFrame);
 	  }
 	  else {
-        Deliver(m_pCallback->GetFlushFrame());
-      }
-    }
+		  AVFrame *pFrameRef = av_frame_alloc();
+		  av_frame_ref(pFrameRef, m_pFrame);
 
-    // increase thread count when flushing
-    if (avpkt == nullptr) {
-      m_CurrentThread = (m_CurrentThread + 1) % m_pAVCtx->thread_count;
-    }
-    av_frame_unref(m_pFrame);
-  }
+		  for (int i = 0; i < 4; i++) {
+			  pOutFrame->data[i] = pFrameRef->data[i];
+			  pOutFrame->stride[i] = pFrameRef->linesize[i];
+		  }
 
-  // repeat sending the packet to the decoder if it failed first
-  if (bDeliverFirst) {
-    goto send_packet;
+		  pOutFrame->priv_data = pFrameRef;
+		  pOutFrame->destruct = lav_avframe_free;
+
+		  // Check alignment on rawvideo, which can be off depending on the source file
+		  if (m_nCodecId == AV_CODEC_ID_RAWVIDEO) {
+			  for (int i = 0; i < 4; i++) {
+				  if ((intptr_t)pOutFrame->data[i] % 16u || pOutFrame->stride[i] % 16u) {
+					  // copy the frame, its not aligned properly and would crash later
+					  CopyLAVFrameInPlace(pOutFrame);
+					  break;
+				  }
+			  }
+		  }
+	  }
+
+	  if (bEndOfSequence)
+		  pOutFrame->flags |= LAV_FRAME_FLAG_END_OF_SEQUENCE;
+
+	  if (pOutFrame->format == LAVPixFmt_DXVA2) {
+		  pOutFrame->data[0] = m_pFrame->data[4];
+		  HandleDXVA2Frame(pOutFrame);
+	  }
+	  else if (pOutFrame->format == LAVPixFmt_D3D11) {
+		  HandleDXVA2Frame(pOutFrame);
+	  }
+	  else {
+		  Deliver(pOutFrame);
+	  }
+
+	  if (bEndOfSequence) {
+		  bEndOfSequence = FALSE;
+		  if (pOutFrame->format == LAVPixFmt_DXVA2 || pOutFrame->format == LAVPixFmt_D3D11) {
+			  HandleDXVA2Frame(m_pCallback->GetFlushFrame());
+		  }
+		  else {
+			  Deliver(m_pCallback->GetFlushFrame());
+		  }
+	  }
+
+	  // increase thread count when flushing
+	  if (avpkt == nullptr) {
+		  m_CurrentThread = (m_CurrentThread + 1) % m_pAVCtx->thread_count;
+	  }
+	  av_frame_unref(m_pFrame);
   }
 
   return S_OK;

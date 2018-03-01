@@ -45,7 +45,7 @@ public:
 
 
 	STDMETHODIMP OpenInputStream(AVIOContext *byteContext, LPCOLESTR pszFileName = nullptr, const char *format = nullptr, BOOL bForce = FALSE, BOOL bFileSource = FALSE);
-
+	STDMETHODIMP SeekByte(int64_t pos, int flags);
 
 private:
 	STDMETHODIMP AddStream(int streamId);

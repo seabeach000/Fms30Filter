@@ -254,6 +254,7 @@ STDMETHODIMP CFmsDemuxer::Seek(REFERENCE_TIME rTime)
 	int seekStreamId = m_dActiveStreams[video];
 	int seek_pts = 0;
 
+retry:
 	// If we have a video stream, seek on that one. If we don't, well, then don't!
 	if (rTime > 0) {
 		if (seekStreamId != -1) {
@@ -269,20 +270,42 @@ STDMETHODIMP CFmsDemuxer::Seek(REFERENCE_TIME rTime)
 		seek_pts = 0;
 
 	//使用我们famous里面的seek方式，这样出来的不是I帧
-	const int	default_stream_index_ = av_find_default_stream_index(m_avFormat);
-	AVStream *stream = m_avFormat->streams[default_stream_index_];
+	//const int	default_stream_index_ = av_find_default_stream_index(m_avFormat);
+	//AVStream *stream = m_avFormat->streams[default_stream_index_];
 
-	int ret = avformat_seek_file(
-		m_avFormat,
-		default_stream_index_,
-		std::numeric_limits<int64_t>::lowest(),
-		static_cast<int64_t>(seek_pts + stream->start_time),
-		std::numeric_limits<int64_t>::infinity(),
-		0);
+	//int ret = avformat_seek_file(
+	//	m_avFormat,
+	//	default_stream_index_,
+	//	std::numeric_limits<int64_t>::lowest(),
+	//	static_cast<int64_t>(seek_pts + stream->start_time),
+	//	std::numeric_limits<int64_t>::infinity(),
+	//	0);
 
-	if(ret < 0)
+	//if(ret < 0)
+	//	DbgLog((LOG_CUSTOM1, 1, L"::Seek() -- Key-Frame Seek failed"));
+
+	if (strcmp(m_pszInputFormat, "rawvideo") == 0 && seek_pts == 0)
+		return SeekByte(0, AVSEEK_FLAG_BACKWARD);
+
+	int flags = AVSEEK_FLAG_BACKWARD;
+
+	int ret = av_seek_frame(m_avFormat, seekStreamId, seek_pts, flags);
+	if (ret < 0) {
 		DbgLog((LOG_CUSTOM1, 1, L"::Seek() -- Key-Frame Seek failed"));
-
+		ret = av_seek_frame(m_avFormat, seekStreamId, seek_pts, flags | AVSEEK_FLAG_ANY);
+		if (ret < 0) {
+			DbgLog((LOG_ERROR, 1, L"::Seek() -- Inaccurate Seek failed as well"));
+			if (seekStreamId == m_dActiveStreams[video] && seekStreamId != -1 && m_dActiveStreams[audio] != -1) {
+				DbgLog((LOG_ERROR, 1, L"::Seek() -- retrying seek on audio stream"));
+				seekStreamId = m_dActiveStreams[audio];
+				goto retry;
+			}
+			if (seek_pts == 0) {
+				DbgLog((LOG_ERROR, 1, L" -> attempting byte seek to position 0"));
+				return SeekByte(0, AVSEEK_FLAG_BACKWARD);
+			}
+		}
+	}
 	for (unsigned int i = 0; i < m_avFormat->nb_streams; i++)
 	{
 		init_parser(m_avFormat, m_avFormat->streams[i]);
@@ -548,6 +571,21 @@ STDMETHODIMP CFmsDemuxer::OpenInputStream(AVIOContext *byteContext, LPCOLESTR ps
 done:
 	CleanupAVFormat();
 	return E_FAIL;
+}
+
+STDMETHODIMP CFmsDemuxer::SeekByte(int64_t pos, int flags)
+{
+	int ret = av_seek_frame(m_avFormat, -1, pos, flags | AVSEEK_FLAG_BYTE);
+	if (ret < 0) {
+		DbgLog((LOG_ERROR, 1, L"::SeekByte() -- Seek failed"));
+	}
+
+	for (unsigned i = 0; i < m_avFormat->nb_streams; i++) {
+		init_parser(m_avFormat, m_avFormat->streams[i]);
+		UpdateParserFlags(m_avFormat->streams[i]);
+	}
+
+	return S_OK;
 }
 
 /////////////////////////////////////////////////////////////////////////////
