@@ -359,7 +359,7 @@ HRESULT CFMS30Video::CheckConnect(PIN_DIRECTION dir, IPin *pPin)
 	//wxg mark  这些guid都需要修改一下
 	if (dir == PINDIR_INPUT) {
 		if (FilterInGraphSafe(pPin, CLSID_LAVVideo, TRUE)) {
-			DbgLog((LOG_TRACE, 10, L"CFMS30Video::CheckConnect(): LAVVideo is already in this graph branch, aborting."));
+			DbgLog((LOG_TRACE, 10, L"CFMS30Video::CheckConnect(): CFMS30Video is already in this graph branch, aborting."));
 			return E_FAIL;
 		}
 	}

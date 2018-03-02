@@ -33,7 +33,7 @@ HRESULT CFMS30InputPin::GetAVIOContext(AVIOContext** ppContext)
 		LONGLONG available = 0;
 		HRESULT hr = m_pAsyncReader->Length(&total, &available);
 		if (FAILED(hr) || total == 0) {
-			DbgLog((LOG_TRACE, 10, L"CLAVInputPin::GetAVIOContext(): getting file length failed, disabling seeking"));
+			DbgLog((LOG_TRACE, 10, L"CFMS30InputPin::GetAVIOContext(): getting file length failed, disabling seeking"));
 			m_pAVIOContext->seekable = 0;
 			m_pAVIOContext->seek = nullptr;
 			m_pAVIOContext->buffer_size = READ_BUFFER_SIZE / 4;

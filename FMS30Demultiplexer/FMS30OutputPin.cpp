@@ -136,7 +136,7 @@ HRESULT CFMS30OutputPin::CheckMediaType(const CMediaType* pmt)
 
 HRESULT CFMS30OutputPin::GetMediaType(int iPosition, CMediaType* pmt)
 {
-	DbgLog((LOG_TRACE, 10, L"CLAVOutputPin::GetMediaType(): %s, position: %d", CBaseDemuxer::CStreamList::ToStringW(m_pinType), iPosition));
+	DbgLog((LOG_TRACE, 10, L"CFMS30OutputPin::GetMediaType(): %s, position: %d", CBaseDemuxer::CStreamList::ToStringW(m_pinType), iPosition));
 	CAutoLock cAutoLock(m_pLock);
 
 	if (iPosition < 0) return E_INVALIDARG;
@@ -149,7 +149,7 @@ HRESULT CFMS30OutputPin::GetMediaType(int iPosition, CMediaType* pmt)
 
 HRESULT CFMS30OutputPin::Active()
 {
-	DbgLog((LOG_TRACE, 30, L"CLAVOutputPin::Active() - activated %s pin", CBaseDemuxer::CStreamList::ToStringW(m_pinType)));
+	DbgLog((LOG_TRACE, 30, L"CFMS30OutputPin::Active() - activated %s pin", CBaseDemuxer::CStreamList::ToStringW(m_pinType)));
 	CAutoLock cAutoLock(m_pLock);
 
 	if (m_Connected)
@@ -160,7 +160,7 @@ HRESULT CFMS30OutputPin::Active()
 
 HRESULT CFMS30OutputPin::Inactive()
 {
-	DbgLog((LOG_TRACE, 30, L"CLAVOutputPin::Inactive() - de-activated %s pin", CBaseDemuxer::CStreamList::ToStringW(m_pinType)));
+	DbgLog((LOG_TRACE, 30, L"CFMS30OutputPin::Inactive() - de-activated %s pin", CBaseDemuxer::CStreamList::ToStringW(m_pinType)));
 	CAutoLock cAutoLock(m_pLock);
 
 	CAMThread::CallWorker(CMD_EXIT);
