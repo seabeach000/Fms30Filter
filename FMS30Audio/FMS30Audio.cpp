@@ -131,7 +131,7 @@ HRESULT CFMS30Audio::DecideBufferSize(IMemAllocator * pAllocator, ALLOCATOR_PROP
 
 	pProperties->cBuffers = 4;
 	// TODO: we should base this on the output media type
-	pProperties->cbBuffer = LAV_AUDIO_BUFFER_SIZE; // 48KHz 6ch 32bps 100ms
+	pProperties->cbBuffer = FMS_AUDIO_BUFFER_SIZE; // 48KHz 6ch 32bps 100ms
 	pProperties->cbAlign = 1;
 	pProperties->cbPrefix = 0;
 

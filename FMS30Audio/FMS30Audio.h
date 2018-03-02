@@ -7,7 +7,7 @@
 
 // Buffer Size for decoded PCM: 1s of 192kHz 32-bit with 8 channels
 // 192000 (Samples) * 4 (Bytes per Sample) * 8 (channels)
-#define LAV_AUDIO_BUFFER_SIZE 6144000
+#define FMS_AUDIO_BUFFER_SIZE 6144000
 
 // Maximum Durations (in reference time)
 // 10ms (DTS has 10.6667 ms samples, don't want to queue them up)
