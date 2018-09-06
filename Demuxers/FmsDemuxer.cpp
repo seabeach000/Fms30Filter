@@ -51,6 +51,7 @@ CFmsDemuxer::CFmsDemuxer(CCritSec *pLock, ILAVFSettingsInternal *settings)
 
 CFmsDemuxer::~CFmsDemuxer()
 {
+	CleanupAVFormat();
 }
 
 STDMETHODIMP CFmsDemuxer::NonDelegatingQueryInterface(REFIID riid, void** ppv)
