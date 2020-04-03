@@ -675,18 +675,24 @@ STDMETHODIMP CFMS30Splitter::InitDemuxer()
 	}
 
 	std::list<std::string> audioLangs;
-	const CBaseDemuxer::stream *audioStream = m_pDemuxer->SelectAudioStream(audioLangs);
-	if (audioStream) {
-		CFMS30OutputPin* pPin = new CFMS30OutputPin(audioStream->streamInfo->mtypes, CBaseDemuxer::CStreamList::ToStringW(CBaseDemuxer::audio), this, this, &hr, CBaseDemuxer::audio, m_pDemuxer->GetContainerFormat());
-		if (SUCCEEDED(hr)) {
-			pPin->SetStreamId(audioStream->pid);
-			m_pPins.push_back(pPin);
-			m_pDemuxer->SetActiveStream(CBaseDemuxer::audio, audioStream->pid);
-		}
-		else {
-			delete pPin;
-		}
+	std::list<CBaseDemuxer::stream *> lstA = m_pDemuxer->SelectAllAudioStream(audioLangs);
+	for (auto& ia : lstA)
+	{
+		const CBaseDemuxer::stream *audioStream = ia;
+			if (audioStream) {
+				CFMS30OutputPin* pPin = new CFMS30OutputPin(audioStream->streamInfo->mtypes, CBaseDemuxer::CStreamList::ToStringW(CBaseDemuxer::audio), this, this, &hr, CBaseDemuxer::audio, m_pDemuxer->GetContainerFormat());
+				if (SUCCEEDED(hr)) {
+					pPin->SetStreamId(audioStream->pid);
+					m_pPins.push_back(pPin);
+					m_pDemuxer->SetActiveStream(CBaseDemuxer::audio, audioStream->pid);
+				}
+				else {
+					delete pPin;
+				}
+			}
+
 	}
+	
 
 	if (SUCCEEDED(hr)) {
 		// If there are no pins, what good are we?

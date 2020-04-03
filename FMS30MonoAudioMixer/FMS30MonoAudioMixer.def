@@ -1,0 +1,9 @@
+; FMS30Audio.def ; declares the exports
+
+LIBRARY         "FMS30MonoAudioMixer.ax"
+
+EXPORTS
+                DllGetClassObject PRIVATE
+                DllCanUnloadNow PRIVATE
+                DllRegisterServer PRIVATE
+                DllUnregisterServer PRIVATE

@@ -3,6 +3,7 @@
 #include "StreamInfo.h"
 #include "Packet.h"
 #include "IMediaSideDataFFmpeg.h"
+#include <set>
 
 #define DSHOW_TIME_BASE 10000000        // DirectShow times are in 100ns units
 #define NO_SUBTITLE_PID DWORD_MAX
@@ -80,8 +81,8 @@ public:
 	// The demuxers can use this to filter packets before returning back to the caller on GetNextPacket
 	// This functionality is optional however, so the caller should not rely on only receiving packets
 	// for active streams.
-	virtual HRESULT SetActiveStream(StreamType type, int pid) { m_dActiveStreams[type] = pid; return S_OK; }
-
+	virtual HRESULT SetActiveStream(StreamType type, int pid) { m_dActiveStreams[type].insert(pid); return S_OK; }
+	virtual int GetActiveStreamId(StreamType type, int nPos = 0);
 	// Called when the settings of the splitter change
 	virtual void SettingsChanged(ILAVFSettingsInternal *pSettings) {};
 
@@ -116,10 +117,13 @@ public:
 	// Select the best audio stream
 	virtual const stream* SelectAudioStream(std::list<std::string> prefLanguages) = 0;
 
+	virtual const std::list<CBaseDemuxer::stream*> SelectAllAudioStream(std::list<std::string> prefLanguages) = 0;
+
 
 protected:
 	CCritSec *m_pLock = nullptr;
 	CStreamList m_streams[unknown];
-	int m_dActiveStreams[unknown];
+	std::set<int> m_dActiveStreams[unknown];
+
 };
 

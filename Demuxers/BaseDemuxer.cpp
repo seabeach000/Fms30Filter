@@ -6,9 +6,10 @@
 CBaseDemuxer::CBaseDemuxer(LPCTSTR pName, CCritSec *pLock)
 	: CUnknown(pName, nullptr), m_pLock(pLock)
 {
+/*
 	for (int i = 0; i < unknown; ++i) {
 		m_dActiveStreams[i] = -1;
-	}
+	}*/
 }
 
 
@@ -50,6 +51,24 @@ void CBaseDemuxer::CStreamList::Clear()
 		delete (*it).streamInfo;
 	}
 	__super::clear();
+}
+
+int CBaseDemuxer::GetActiveStreamId(StreamType type, int nPos /*= 0*/)
+{
+	if (m_dActiveStreams[type].size() == 0
+		|| m_dActiveStreams[type].size() < nPos +1)
+	{
+		return -1;
+	}
+
+	auto& it = m_dActiveStreams[type].begin();
+	for (int i = 0; i < nPos; ++i)
+	{		
+		it++;
+	}
+
+	return *it;
+
 }
 
 CBaseDemuxer::stream* CBaseDemuxer::FindStream(DWORD pid)

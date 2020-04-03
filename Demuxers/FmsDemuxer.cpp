@@ -142,7 +142,7 @@ STDMETHODIMP CFmsDemuxer::GetNextPacket(Packet **ppPacket)
 		AVStream *stream = m_avFormat->streams[pkt.stream_index];
 		BOOL streamActive = FALSE;
 		for (int i = 0; i < unknown; ++i) {
-			if (m_dActiveStreams[i] == pkt.stream_index) {
+			if (m_dActiveStreams[i].find(pkt.stream_index) != m_dActiveStreams[i].end()) {
 				streamActive = TRUE;
 				break;
 			}
@@ -252,7 +252,7 @@ inline static int init_parser(AVFormatContext *s, AVStream *st) {
 
 STDMETHODIMP CFmsDemuxer::Seek(REFERENCE_TIME rTime)
 {
-	int seekStreamId = m_dActiveStreams[video];
+	int seekStreamId = GetActiveStreamId(video);
 	int seek_pts = 0;
 
 retry:
@@ -296,9 +296,9 @@ retry:
 		ret = av_seek_frame(m_avFormat, seekStreamId, seek_pts, flags | AVSEEK_FLAG_ANY);
 		if (ret < 0) {
 			DbgLog((LOG_ERROR, 1, L"::Seek() -- Inaccurate Seek failed as well"));
-			if (seekStreamId == m_dActiveStreams[video] && seekStreamId != -1 && m_dActiveStreams[audio] != -1) {
+			if (seekStreamId == GetActiveStreamId(video) && seekStreamId != -1 && GetActiveStreamId(audio) != -1) {
 				DbgLog((LOG_ERROR, 1, L"::Seek() -- retrying seek on audio stream"));
-				seekStreamId = m_dActiveStreams[audio];
+				seekStreamId = GetActiveStreamId(audio);
 				goto retry;
 			}
 			if (seek_pts == 0) {
@@ -370,6 +370,37 @@ const CBaseDemuxer::stream* CFmsDemuxer::SelectVideoStream()
 
 	return best;
 }
+
+
+const std::list<CBaseDemuxer::stream*> CFmsDemuxer::SelectAllAudioStream(std::list<std::string> prefLanguages)
+{
+	const stream *best = nullptr;
+	CStreamList *streams = GetStreams(audio);
+
+	std::deque<stream*> checkedStreams;
+
+	std::list<CBaseDemuxer::stream*> lstRet;
+	// If no language was set, or no matching streams were found
+	// Put all streams in there
+	if (checkedStreams.empty()) {
+		std::deque<stream>::iterator sit;
+		for (sit = streams->begin(); sit != streams->end(); ++sit) {
+			checkedStreams.push_back(&*sit);
+		}
+	}
+
+	// Check for a stream with a default flag
+	// If in our current set is one, that one prevails
+	std::deque<stream*>::iterator sit;
+	for (sit = checkedStreams.begin(); sit != checkedStreams.end(); ++sit) {
+		
+			lstRet.push_back(*sit);
+		
+	}
+
+	return lstRet;
+}
+
 
 //wxg20180130暂时只考虑一个音频流
 const CBaseDemuxer::stream* CFmsDemuxer::SelectAudioStream(std::list<std::string> prefLanguages)

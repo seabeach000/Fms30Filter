@@ -34,6 +34,11 @@ public:
 	// Select the best subtitle stream
 	const stream* SelectSubtitleStream(std::list<CSubtitleSelector> subtitleSelectors, std::string audioLanguage);
 
+
+	const std::list<CBaseDemuxer::stream*> SelectAllAudioStream(std::list<std::string> prefLanguages);
+
+
+
 	HRESULT SetActiveStream(StreamType type, int pid);
 
 	STDMETHODIMP_(DWORD) GetStreamFlags(DWORD dwStream);

@@ -267,7 +267,7 @@ HRESULT CFMS30Audio::Receive(IMediaSample *pIn)
 		return E_FAIL;
 	}
 
-	m_buff.Allocate(bufflen + len + FF_INPUT_BUFFER_PADDING_SIZE);
+	m_buff.Allocate(bufflen + len + AV_INPUT_BUFFER_PADDING_SIZE);
 	m_buff.Append(pDataIn, len);
 
 	hr = ProcessBuffer(pIn);

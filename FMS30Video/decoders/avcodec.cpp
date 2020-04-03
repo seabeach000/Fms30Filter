@@ -377,7 +377,7 @@ STDMETHODIMP CDecAvcodec::InitDecoder(AVCodecID codec, const CMediaType *pmt)
     DbgLog((LOG_TRACE, 10, L"-> Processing AVC1 extradata of %d bytes", extralen));
     MPEG2VIDEOINFO *mp2vi = (MPEG2VIDEOINFO *)pmt->Format();
     extralen += 7;
-    extra = (uint8_t *)av_mallocz(extralen + FF_INPUT_BUFFER_PADDING_SIZE);
+    extra = (uint8_t *)av_mallocz(extralen + AV_INPUT_BUFFER_PADDING_SIZE);
     extra[0] = 1;
     extra[1] = (BYTE)mp2vi->dwProfile;
     extra[2] = 0;
@@ -421,7 +421,7 @@ STDMETHODIMP CDecAvcodec::InitDecoder(AVCodecID codec, const CMediaType *pmt)
       if (extralen < sizeof(m_pAVCtx->pix_fmt)) {
         DbgLog((LOG_TRACE, 10, L"-> LAV RAW Video extradata is missing.."));
       } else {
-        extra = (uint8_t *)av_mallocz(extralen + FF_INPUT_BUFFER_PADDING_SIZE);
+        extra = (uint8_t *)av_mallocz(extralen + AV_INPUT_BUFFER_PADDING_SIZE);
         getExtraData(*pmt, extra, nullptr);
         m_pAVCtx->pix_fmt = *(AVPixelFormat *)extra;
         extralen -= sizeof(AVPixelFormat);
@@ -430,7 +430,7 @@ STDMETHODIMP CDecAvcodec::InitDecoder(AVCodecID codec, const CMediaType *pmt)
     } else if (codec == AV_CODEC_ID_VP9) {
       // read custom vpcC headers
       if (extralen >= 16) {
-        extra = (uint8_t *)av_mallocz(extralen + FF_INPUT_BUFFER_PADDING_SIZE);
+        extra = (uint8_t *)av_mallocz(extralen + AV_INPUT_BUFFER_PADDING_SIZE);
         getExtraData(*pmt, extra, nullptr);
 
         if (AV_RB32(extra) == MKBETAG('v', 'p', 'c', 'C') && AV_RB8(extra + 4) == 1) {
@@ -453,7 +453,7 @@ STDMETHODIMP CDecAvcodec::InitDecoder(AVCodecID codec, const CMediaType *pmt)
       }
     } else {
       // Just copy extradata for other formats
-      extra = (uint8_t *)av_mallocz(extralen + FF_INPUT_BUFFER_PADDING_SIZE);
+      extra = (uint8_t *)av_mallocz(extralen + AV_INPUT_BUFFER_PADDING_SIZE);
       getExtraData(*pmt, extra, nullptr);
     }
     // Hack to discard invalid MP4 metadata with AnnexB style video
@@ -468,7 +468,7 @@ STDMETHODIMP CDecAvcodec::InitDecoder(AVCodecID codec, const CMediaType *pmt)
       int cropH = pBMI->biWidth - biRealWidth;
       int cropV = pBMI->biHeight - biRealHeight;
       if (cropH >= 0 && cropH <= 0x0f && cropV >= 0 && cropV <= 0x0f) {
-        m_pAVCtx->extradata = (uint8_t *)av_mallocz(1 + FF_INPUT_BUFFER_PADDING_SIZE);
+        m_pAVCtx->extradata = (uint8_t *)av_mallocz(1 + AV_INPUT_BUFFER_PADDING_SIZE);
         m_pAVCtx->extradata_size = 1;
         m_pAVCtx->extradata[0] = (cropH << 4) | cropV;
       }
@@ -501,7 +501,7 @@ STDMETHODIMP CDecAvcodec::InitDecoder(AVCodecID codec, const CMediaType *pmt)
   // Use ffmpegs logic to reorder timestamps
   // This is required for H264 content (except AVI), and generally all codecs that use frame threading
   m_bFFReordering        = !(dwDecFlags & LAV_VIDEO_DEC_FLAG_ONLY_DTS) && (
-                            (m_pAVCodec->capabilities & CODEC_CAP_FRAME_THREADS) // Covers most modern codecs, others listed above
+                            (m_pAVCodec->capabilities & AV_CODEC_CAP_FRAME_THREADS) // Covers most modern codecs, others listed above
                            || codec == AV_CODEC_ID_MPEG2VIDEO
                            || codec == AV_CODEC_ID_MPEG1VIDEO
                            || codec == AV_CODEC_ID_DIRAC
@@ -864,14 +864,20 @@ STDMETHODIMP CDecAvcodec::ParsePacket(const BYTE *buffer, int buflen, REFERENCE_
       }
     }
     // or perform a flush at the end
-    else if (bFlush)
-    {
-      hr = DecodePacket(nullptr, AV_NOPTS_VALUE, AV_NOPTS_VALUE);
-      if (FAILED(hr)) {
-        return hr;
-      }
-      break;
-    }
+	else if (bFlush)
+	{
+		AVPacket avpkt;
+		av_init_packet(&avpkt);
+		avpkt.data = nullptr;
+		avpkt.size = 0;
+
+		hr = DecodePacket(&avpkt, AV_NOPTS_VALUE, AV_NOPTS_VALUE);
+		if (FAILED(hr)) {
+			return hr;
+		}
+		if (hr != S_OK)
+			break;
+	}
   }
 
   return S_OK;
