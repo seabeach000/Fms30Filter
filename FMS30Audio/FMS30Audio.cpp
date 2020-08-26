@@ -433,7 +433,7 @@ HRESULT CFMS30Audio::ffmpeg_init(AVCodecID codec, const void *format, GUID forma
 			? m_pAVCtx->channel_layout
 			: av_get_default_channel_layout(m_pAVCtx->channels),
 			AV_SAMPLE_FMT_S32,
-			48000,
+			m_pAVCtx->sample_rate,
 			m_pAVCtx->channel_layout
 			? m_pAVCtx->channel_layout
 			: av_get_default_channel_layout(m_pAVCtx->channels),
